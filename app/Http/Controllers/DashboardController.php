@@ -6,20 +6,19 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Ambil data mobil dari MobilController (single source of truth)
+        $semuaMobil = (new MobilController())->getAllMobil();
+
+        // Hitung statistik dari data real
         $stats = [
-            'totalMobil'       => 12,
-            'mobilTersedia'    => 8,
-            'mobilDigunakan'   => 4,
-            'totalPemakaian'   => 25,   // total pemakaian bulan ini
+            'totalMobil'     => count($semuaMobil),
+            'mobilTersedia'  => collect($semuaMobil)->where('status', 'Tersedia')->count(),
+            'mobilDigunakan' => collect($semuaMobil)->where('status', 'Digunakan')->count(),
+            'totalPemakaian' => 25, // total pemakaian bulan ini (dummy)
         ];
 
-        $mobilTerbaru = [
-            ['id' => 1, 'nama' => 'Toyota Avanza',     'plat' => 'KH 1234 XY', 'status' => 'Tersedia',  'warna' => 'Putih'],
-            ['id' => 2, 'nama' => 'Honda Brio',        'plat' => 'KH 5678 AB', 'status' => 'Digunakan', 'warna' => 'Merah'],
-            ['id' => 3, 'nama' => 'Daihatsu Xenia',    'plat' => 'KH 9012 CD', 'status' => 'Tersedia',  'warna' => 'Silver'],
-            ['id' => 4, 'nama' => 'Toyota Innova',     'plat' => 'KH 3456 EF', 'status' => 'Tersedia',  'warna' => 'Hitam'],
-            ['id' => 5, 'nama' => 'Mitsubishi Xpander','plat' => 'KH 7890 GH', 'status' => 'Digunakan', 'warna' => 'Abu-abu'],
-        ];
+        // Ambil 5 mobil terbaru (4 dari data real)
+        $mobilTerbaru = collect($semuaMobil)->take(5)->values()->all();
 
         return view('dashboard', compact('stats', 'mobilTerbaru'));
     }

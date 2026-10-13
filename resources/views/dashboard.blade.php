@@ -178,16 +178,26 @@
                     <tr class="hover:bg-slate-50/70 transition-colors animate-fade-in delay-{{ min($i + 4, 8) }}">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-lg bg-slate-100
-                                            flex items-center justify-center text-lg shrink-0">
-                                    🚗
+                                {{-- Foto Mobil --}}
+                                <div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden
+                                            flex items-center justify-center shrink-0">
+                                    @if (!empty($m['foto']))
+                                        <img src="{{ asset($m['foto']) }}"
+                                             alt="{{ $m['nama'] }}"
+                                             class="w-full h-full object-cover"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                        <span class="hidden text-lg">🚗</span>
+                                    @else
+                                        <span class="text-lg">🚗</span>
+                                    @endif
                                 </div>
+
                                 <div class="min-w-0">
                                     <p class="font-semibold text-slate-800 truncate">
                                         {{ $m['nama'] }}
                                     </p>
                                     <p class="text-xs text-slate-500 truncate">
-                                        {{ $m['warna'] ?? '-' }}
+                                        {{ $m['plat'] }}
                                     </p>
                                 </div>
                             </div>
@@ -240,16 +250,25 @@
                         hover:bg-slate-50/70 transition-colors
                         animate-fade-in delay-{{ min($i + 4, 8) }}">
 
-                <div class="w-12 h-12 rounded-lg bg-slate-100
-                            flex items-center justify-center text-xl shrink-0">
-                    🚗
+                {{-- Foto Mobil --}}
+                <div class="w-14 h-14 rounded-lg bg-slate-100 overflow-hidden
+                            flex items-center justify-center shrink-0">
+                    @if (!empty($m['foto']))
+                        <img src="{{ asset($m['foto']) }}"
+                             alt="{{ $m['nama'] }}"
+                             class="w-full h-full object-cover"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <span class="hidden text-xl">🚗</span>
+                    @else
+                        <span class="text-xl">🚗</span>
+                    @endif
                 </div>
 
                 <div class="flex-1 min-w-0">
                     <p class="font-semibold text-slate-800 text-sm truncate">
                         {{ $m['nama'] }}
                     </p>
-                    <div class="flex items-center gap-2 mt-1">
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
                         <span class="font-mono text-[10px] font-semibold
                                      text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
                             {{ $m['plat'] }}

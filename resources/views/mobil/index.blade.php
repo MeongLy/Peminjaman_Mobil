@@ -21,112 +21,126 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
     @foreach ($mobil as $i => $m)
-        <a href="{{ route('mobil.show', $m['id']) }}"
-           class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden
+    <a href="{{ route('mobil.show', $m['id']) }}"
+        class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden
                   hover:shadow-lg hover:border-slate-300 hover:-translate-y-1
                   transition-all duration-200 ease-out
                   animate-fade-in-up delay-{{ min($i + 1, 8) }}
                   group">
 
-            {{-- Foto (placeholder) --}}
-            <div class="aspect-video bg-gradient-to-br from-slate-100 to-slate-200
-                        flex items-center justify-center relative">
+        {{-- Foto (placeholder) --}}
+        {{-- Foto Mobil --}}
+        <div class="aspect-video bg-gradient-to-br from-slate-100 to-slate-200
+            flex items-center justify-center relative overflow-hidden">
 
-                <span class="text-6xl opacity-30 group-hover:scale-110
-                             transition-transform duration-300">🚗</span>
+            @if (!empty($m['foto']))
+            <img src="{{ asset($m['foto']) }}"
+                alt="{{ $m['nama'] }}"
+                class="w-full h-full object-cover
+                    group-hover:scale-105
+                    transition-transform duration-300 ease-out"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
 
-                {{-- Status badge overlay --}}
-                <div class="absolute top-3 right-3">
-                    @if ($m['status'] === 'Tersedia')
-                        <span class="inline-flex items-center gap-1.5
-                                     bg-white/95 backdrop-blur-sm
-                                     text-green-700 px-3 py-1 rounded-full
-                                     text-[11px] font-bold shadow-sm">
-                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                            Tersedia
-                        </span>
-                    @else
-                        <span class="inline-flex items-center gap-1.5
-                                     bg-white/95 backdrop-blur-sm
-                                     text-orange-700 px-3 py-1 rounded-full
-                                     text-[11px] font-bold shadow-sm">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-                            Digunakan
-                        </span>
-                    @endif
-                </div>
+            {{-- Fallback kalau gambar error --}}
+            <div class="absolute inset-0 items-center justify-center hidden">
+                <span class="text-6xl opacity-30">🚗</span>
             </div>
+            @else
+            <span class="text-6xl opacity-30 group-hover:scale-110
+                     transition-transform duration-300">🚗</span>
+            @endif
 
-            {{-- Body --}}
-            <div class="p-5">
-
-                {{-- Nama & Tipe --}}
-                <div class="mb-3">
-                    <h3 class="font-bold text-base text-slate-800 leading-tight">
-                        {{ $m['nama'] }}
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-0.5">{{ $m['tipe'] }}</p>
-                </div>
-
-                {{-- Plat Nomor --}}
-                <div class="mb-3">
-                    <span class="inline-block font-mono text-xs font-semibold
-                                 text-slate-700 bg-slate-100 px-2 py-1 rounded">
-                        {{ $m['plat'] }}
-                    </span>
-                </div>
-
-                {{-- Spesifikasi --}}
-                <div class="flex flex-wrap gap-1.5 text-[11px] mb-4">
-                    <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600
-                                 px-2 py-1 rounded">
-                        📅 {{ $m['tahun'] }}
-                    </span>
-                    <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600
-                                 px-2 py-1 rounded">
-                        👥 {{ $m['kursi'] }} kursi
-                    </span>
-                    <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600
-                                 px-2 py-1 rounded">
-                        ⚙️ {{ $m['transmisi'] }}
-                    </span>
-                    <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600
-                                 px-2 py-1 rounded">
-                        ⛽ {{ $m['bahan_bakar'] }}
-                    </span>
-                </div>
-
-                {{-- Pemegang (kalau sedang digunakan) --}}
-                @if ($m['status'] === 'Digunakan' && $m['pemegang'])
-                    <div class="mb-3 px-3 py-2 rounded-lg bg-orange-50
-                                border border-orange-100">
-                        <p class="text-[10px] uppercase font-bold text-orange-600">
-                            Sedang Digunakan
-                        </p>
-                        <p class="text-xs text-orange-700 font-medium mt-0.5">
-                            {{ $m['pemegang'] }}
-                        </p>
-                    </div>
+            {{-- Status badge overlay --}}
+            <div class="absolute top-3 right-3">
+                @if ($m['status'] === 'Tersedia')
+                <span class="inline-flex items-center gap-1.5
+                         bg-white/95 backdrop-blur-sm
+                         text-green-700 px-3 py-1 rounded-full
+                         text-[11px] font-bold shadow-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    Tersedia
+                </span>
+                @else
+                <span class="inline-flex items-center gap-1.5
+                         bg-white/95 backdrop-blur-sm
+                         text-orange-700 px-3 py-1 rounded-full
+                         text-[11px] font-bold shadow-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                    Digunakan
+                </span>
                 @endif
+            </div>
+        </div>
+        {{-- Body --}}
+        <div class="p-5">
 
-                {{-- Footer --}}
-                <div class="flex justify-between items-center pt-4 border-t border-slate-100">
-                    <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-500">
-                            Kondisi
-                        </p>
-                        <p class="text-sm font-semibold text-green-600">
-                            ● {{ $m['kondisi'] }}
-                        </p>
-                    </div>
-                    <span class="text-brand-blue group-hover:translate-x-1
-                                 transition-transform duration-200">
-                        →
-                    </span>
-                </div>
+            {{-- Nama & Tipe --}}
+            <div class="mb-3">
+                <h3 class="font-bold text-base text-slate-800 leading-tight">
+                    {{ $m['nama'] }}
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">{{ $m['tipe'] }}</p>
             </div>
 
-        </a>
+            {{-- Plat Nomor --}}
+            <div class="mb-3">
+                <span class="inline-block font-mono text-xs font-semibold
+                                 text-slate-700 bg-slate-100 px-2 py-1 rounded">
+                    {{ $m['plat'] }}
+                </span>
+            </div>
+
+            {{-- Spesifikasi --}}
+            <div class="flex flex-wrap gap-1.5 text-[11px] mb-4">
+                <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600
+                                 px-2 py-1 rounded">
+                    📅 {{ $m['tahun'] }}
+                </span>
+                <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600
+                                 px-2 py-1 rounded">
+                    👥 {{ $m['kursi'] }} kursi
+                </span>
+                <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600
+                                 px-2 py-1 rounded">
+                    ⚙️ {{ $m['transmisi'] }}
+                </span>
+                <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600
+                                 px-2 py-1 rounded">
+                    ⛽ {{ $m['bahan_bakar'] }}
+                </span>
+            </div>
+
+            {{-- Pemegang (kalau sedang digunakan) --}}
+            @if ($m['status'] === 'Digunakan' && $m['pemegang'])
+            <div class="mb-3 px-3 py-2 rounded-lg bg-orange-50
+                                border border-orange-100">
+                <p class="text-[10px] uppercase font-bold text-orange-600">
+                    Sedang Digunakan
+                </p>
+                <p class="text-xs text-orange-700 font-medium mt-0.5">
+                    {{ $m['pemegang'] }}
+                </p>
+            </div>
+            @endif
+
+            {{-- Footer --}}
+            <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                <div>
+                    <p class="text-[10px] uppercase font-bold text-slate-500">
+                        Kondisi
+                    </p>
+                    <p class="text-sm font-semibold text-green-600">
+                        ● {{ $m['kondisi'] }}
+                    </p>
+                </div>
+                <span class="text-brand-blue group-hover:translate-x-1
+                                 transition-transform duration-200">
+                    →
+                </span>
+            </div>
+        </div>
+
+    </a>
     @endforeach
 
 </div>
