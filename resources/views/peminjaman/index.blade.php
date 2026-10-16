@@ -23,7 +23,7 @@
     {{-- Header --}}
     <div class="px-6 py-4 border-b border-slate-100">
         <h3 class="font-bold text-brand-dark">Daftar Pemakaian</h3>
-        <p class="text-xs text-slate-500 mt-0.5">{{ count($peminjaman) }} data pemakaian</p>
+        <p class="text-xs text-slate-500 mt-0.5">{{ $peminjaman->count() }} data pemakaian</p>
     </div>
 
     {{-- Table (Desktop) --}}
@@ -48,33 +48,53 @@
                         <td class="px-6 py-4 text-slate-500">{{ $i + 1 }}</td>
 
                         <td class="px-6 py-4">
-                            <p class="font-semibold text-slate-800">{{ $p['mobil'] }}</p>
-                            <p class="text-xs text-slate-500 font-mono">{{ $p['plat'] }}</p>
+                            <p class="font-semibold text-slate-800">
+                                {{ $p->mobil->nama ?? '-' }}
+                            </p>
+                            <p class="text-xs text-slate-500 font-mono">
+                                {{ $p->mobil->plat ?? '-' }}
+                            </p>
                         </td>
 
                         <td class="px-6 py-4">
-                            <p class="font-medium text-slate-700">{{ $p['pengguna'] }}</p>
-                            <p class="text-xs text-slate-500">{{ $p['bidang'] }}</p>
+                            <p class="font-medium text-slate-700">{{ $p->pengguna }}</p>
+                            <p class="text-xs text-slate-500">{{ $p->bidang }}</p>
                         </td>
 
                         <td class="px-6 py-4 text-slate-600 text-xs max-w-xs">
-                            {{ $p['tujuan'] }}
+                            {{ $p->tujuan }}
                         </td>
 
                         <td class="px-6 py-4">
-                            <p class="text-xs font-medium text-slate-700">{{ $p['tanggal'] }}</p>
+                            <p class="text-xs font-medium text-slate-700">
+                                {{ $p->tanggal?->format('d M Y') }}
+                            </p>
                             <p class="text-[11px] text-slate-500">
-                                {{ $p['jam_keluar'] }} – {{ $p['jam_kembali'] }}
+                                {{ $p->jam_keluar }} – {{ $p->jam_kembali }}
                             </p>
                         </td>
 
                         <td class="px-6 py-4 text-right">
-                            @if ($p['status'] === 'Digunakan')
+                            @if ($p->status === 'Digunakan')
                                 <span class="inline-flex items-center gap-1.5
                                              bg-blue-50 text-blue-700
                                              px-2.5 py-1 rounded-full text-xs font-semibold">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
                                     Digunakan
+                                </span>
+                            @elseif ($p->status === 'Menunggu')
+                                <span class="inline-flex items-center gap-1.5
+                                             bg-yellow-50 text-yellow-700
+                                             px-2.5 py-1 rounded-full text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                                    Menunggu
+                                </span>
+                            @elseif ($p->status === 'Ditolak')
+                                <span class="inline-flex items-center gap-1.5
+                                             bg-red-50 text-red-700
+                                             px-2.5 py-1 rounded-full text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                    Ditolak
                                 </span>
                             @else
                                 <span class="inline-flex items-center gap-1.5
@@ -108,17 +128,27 @@
                 <div class="flex justify-between items-start gap-3 mb-2">
                     <div class="min-w-0">
                         <p class="font-semibold text-slate-800 text-sm truncate">
-                            {{ $p['mobil'] }}
+                            {{ $p->mobil->nama ?? '-' }}
                         </p>
                         <p class="font-mono text-[10px] text-slate-500">
-                            {{ $p['plat'] }}
+                            {{ $p->mobil->plat ?? '-' }}
                         </p>
                     </div>
 
-                    @if ($p['status'] === 'Digunakan')
+                    @if ($p->status === 'Digunakan')
                         <span class="shrink-0 text-[10px] font-bold
                                      bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
                             ● Digunakan
+                        </span>
+                    @elseif ($p->status === 'Menunggu')
+                        <span class="shrink-0 text-[10px] font-bold
+                                     bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full">
+                            ● Menunggu
+                        </span>
+                    @elseif ($p->status === 'Ditolak')
+                        <span class="shrink-0 text-[10px] font-bold
+                                     bg-red-50 text-red-700 px-2 py-1 rounded-full">
+                            ● Ditolak
                         </span>
                     @else
                         <span class="shrink-0 text-[10px] font-bold
@@ -129,14 +159,14 @@
                 </div>
 
                 <p class="text-xs text-slate-600 mb-1">
-                    <span class="font-medium">{{ $p['pengguna'] }}</span>
-                    · {{ $p['bidang'] }}
+                    <span class="font-medium">{{ $p->pengguna }}</span>
+                    · {{ $p->bidang }}
                 </p>
 
-                <p class="text-xs text-slate-500 mb-2">{{ $p['tujuan'] }}</p>
+                <p class="text-xs text-slate-500 mb-2">{{ $p->tujuan }}</p>
 
                 <p class="text-[10px] text-slate-400">
-                    📅 {{ $p['tanggal'] }} · ⏰ {{ $p['jam_keluar'] }}–{{ $p['jam_kembali'] }}
+                    📅 {{ $p->tanggal?->format('d M Y') }} · ⏰ {{ $p->jam_keluar }}–{{ $p->jam_kembali }}
                 </p>
             </div>
         @empty

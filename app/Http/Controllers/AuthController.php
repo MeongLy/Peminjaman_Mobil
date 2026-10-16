@@ -2,34 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * Kredensial statis (sementara — belum pakai DB).
-     */
-    private const USERS = [
-        [
-            'email'    => 'admin@rentcar.id',
-            'password' => 'admin123',
-            'name'     => 'Administrator',
-            'role'     => 'admin',
-        ],
-        [
-            'email'    => 'user@rentcar.id',
-            'password' => 'user123',
-            'name'     => 'Penyewa',
-            'role'     => 'user',
-        ],
-    ];
-
-    /**
-     * Tampilkan halaman login.
-     */
-    public function showLogin(): View|RedirectResponse
+    public function showLogin()
     {
         if (session('user')) {
             return redirect()->route('dashboard');
@@ -38,10 +17,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    /**
-     * Proses login.
-     */
-    public function login(Request $request): RedirectResponse
+    public function login(Request $request)
     {
         $request->validate([
             'email'    => 'required|email',
@@ -53,14 +29,9 @@ class AuthController extends Controller
             'password.min'      => 'Password minimal 6 karakter.',
         ]);
 
-        $email    = strtolower(trim($request->input('email')));
-        $password = trim($request->input('password'));
+        $user = User::where('email', trim(strtolower($request->email)))->first();
 
-        $user = collect(self::USERS)->first(
-            fn(array $u) => strtolower($u['email']) === $email
-        );
-
-        if (!$user || $user['password'] !== $password) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => 'Email atau password salah.']);
@@ -68,28 +39,25 @@ class AuthController extends Controller
 
         session([
             'user' => [
-                'email' => $user['email'],
-                'name'  => $user['name'],
-                'role'  => $user['role'],
+                'id'    => $user->id,
+                'email' => $user->email,
+                'name'  => $user->name,
+                'role'  => $user->role,
             ],
         ]);
 
         return redirect()
             ->route('dashboard')
-            ->with('success', 'Selamat datang, ' . $user['name'] . '!');
+            ->with('success', 'Selamat datang, ' . $user->name . '!');
     }
 
-    /**
-     * Logout.
-     */
-    public function logout(): RedirectResponse
+    public function logout()
     {
         session()->forget('user');
         session()->invalidate();
         session()->regenerateToken();
 
-        return redirect()
-            ->route('login')
+        return redirect()->route('login')
             ->with('success', 'Anda berhasil logout.');
     }
 }

@@ -12,7 +12,6 @@
             from-brand-dark via-brand-mid to-brand-blue text-white
             p-5 sm:p-6 md:p-8 animate-fade-in-up">
 
-    {{-- Dekorasi background --}}
     <div class="absolute -top-10 -right-10 w-32 sm:w-40 h-32 sm:h-40 rounded-full bg-white/5"></div>
     <div class="absolute -bottom-12 -right-4 w-24 sm:w-32 h-24 sm:h-32 rounded-full bg-white/5"></div>
 
@@ -178,12 +177,12 @@
                     <tr class="hover:bg-slate-50/70 transition-colors animate-fade-in delay-{{ min($i + 4, 8) }}">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                {{-- Foto Mobil --}}
+                                {{-- Foto --}}
                                 <div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden
                                             flex items-center justify-center shrink-0">
-                                    @if (!empty($m['foto']))
-                                        <img src="{{ asset($m['foto']) }}"
-                                             alt="{{ $m['nama'] }}"
+                                    @if (!empty($m->foto))
+                                        <img src="{{ asset($m->foto) }}"
+                                             alt="{{ $m->nama }}"
                                              class="w-full h-full object-cover"
                                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                                         <span class="hidden text-lg">🚗</span>
@@ -194,10 +193,10 @@
 
                                 <div class="min-w-0">
                                     <p class="font-semibold text-slate-800 truncate">
-                                        {{ $m['nama'] }}
+                                        {{ $m->nama }}
                                     </p>
                                     <p class="text-xs text-slate-500 truncate">
-                                        {{ $m['plat'] }}
+                                        {{ $m->plat }}
                                     </p>
                                 </div>
                             </div>
@@ -205,26 +204,33 @@
                         <td class="px-6 py-4">
                             <span class="inline-block font-mono text-xs font-semibold
                                          text-slate-700 bg-slate-100 px-2 py-1 rounded">
-                                {{ $m['plat'] }}
+                                {{ $m->plat }}
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-slate-600">
-                            {{ $m['tipe'] ?? '-' }}
+                            {{ $m->tipe ?? '-' }}
                         </td>
                         <td class="px-6 py-4 text-right">
-                            @if ($m['status'] === 'Tersedia')
+                            @if ($m->status === 'Tersedia')
                                 <span class="inline-flex items-center gap-1.5
                                              bg-green-50 text-green-700
                                              px-2.5 py-1 rounded-full text-xs font-semibold">
                                     <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                                     Tersedia
                                 </span>
-                            @else
+                            @elseif ($m->status === 'Digunakan')
                                 <span class="inline-flex items-center gap-1.5
                                              bg-orange-50 text-orange-700
                                              px-2.5 py-1 rounded-full text-xs font-semibold">
                                     <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
                                     Digunakan
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5
+                                             bg-red-50 text-red-700
+                                             px-2.5 py-1 rounded-full text-xs font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                    Perbaikan
                                 </span>
                             @endif
                         </td>
@@ -250,12 +256,12 @@
                         hover:bg-slate-50/70 transition-colors
                         animate-fade-in delay-{{ min($i + 4, 8) }}">
 
-                {{-- Foto Mobil --}}
+                {{-- Foto --}}
                 <div class="w-14 h-14 rounded-lg bg-slate-100 overflow-hidden
                             flex items-center justify-center shrink-0">
-                    @if (!empty($m['foto']))
-                        <img src="{{ asset($m['foto']) }}"
-                             alt="{{ $m['nama'] }}"
+                    @if (!empty($m->foto))
+                        <img src="{{ asset($m->foto) }}"
+                             alt="{{ $m->nama }}"
                              class="w-full h-full object-cover"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                         <span class="hidden text-xl">🚗</span>
@@ -266,25 +272,29 @@
 
                 <div class="flex-1 min-w-0">
                     <p class="font-semibold text-slate-800 text-sm truncate">
-                        {{ $m['nama'] }}
+                        {{ $m->nama }}
                     </p>
                     <div class="flex items-center gap-2 mt-1 flex-wrap">
                         <span class="font-mono text-[10px] font-semibold
                                      text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
-                            {{ $m['plat'] }}
+                            {{ $m->plat }}
                         </span>
-                        @if ($m['status'] === 'Tersedia')
+                        @if ($m->status === 'Tersedia')
                             <span class="text-[10px] font-semibold text-green-600">
                                 ● Tersedia
                             </span>
-                        @else
+                        @elseif ($m->status === 'Digunakan')
                             <span class="text-[10px] font-semibold text-orange-600">
                                 ● Digunakan
+                            </span>
+                        @else
+                            <span class="text-[10px] font-semibold text-red-600">
+                                ● Perbaikan
                             </span>
                         @endif
                     </div>
                     <p class="text-xs text-slate-500 mt-1">
-                        {{ $m['tipe'] ?? '-' }}
+                        {{ $m->tipe ?? '-' }}
                     </p>
                 </div>
 

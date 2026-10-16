@@ -4,7 +4,6 @@ import './bootstrap';
 // LOGIN PAGE — Toggle Password + Loading State
 // ============================================================
 function initLoginPage() {
-    // Toggle password visibility
     const toggleBtn = document.getElementById('togglePassword');
     if (toggleBtn) {
         toggleBtn.addEventListener('click', function () {
@@ -30,7 +29,6 @@ function initLoginPage() {
         });
     }
 
-    // Loading state saat submit
     const form = document.getElementById('loginForm');
     const submitBtn = document.getElementById('submitBtn');
     if (form && submitBtn) {
@@ -85,7 +83,6 @@ function initSidebar() {
         }
     });
 
-    // Tutup otomatis saat resize ke desktop
     let lastWidth = window.innerWidth;
     window.addEventListener('resize', () => {
         const width = window.innerWidth;
@@ -95,9 +92,392 @@ function initSidebar() {
 }
 
 // ============================================================
+// DROPDOWN ACTIONS (⋮)
+// ============================================================
+function initDropdowns() {
+    document.querySelectorAll('[data-dropdown-toggle]').forEach((toggle) => {
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wrapper = toggle.closest('[data-dropdown]');
+            const menu    = wrapper?.querySelector('[data-dropdown-menu]');
+            if (!menu) return;
+
+            document.querySelectorAll('[data-dropdown-menu]').forEach((m) => {
+                if (m !== menu) m.classList.add('hidden');
+            });
+
+            menu.classList.toggle('hidden');
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('[data-dropdown]')) {
+            document.querySelectorAll('[data-dropdown-menu]').forEach((m) => m.classList.add('hidden'));
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('[data-dropdown-menu]').forEach((m) => m.classList.add('hidden'));
+        }
+    });
+}
+
+// ============================================================
+// MODAL KONFIRMASI HAPUS
+// ============================================================
+function initConfirmDelete() {
+    const modal     = document.getElementById('modalHapus');
+    const form      = document.getElementById('formHapus');
+    const namaEl    = document.getElementById('confirmUserName');
+    const hapusBtns = document.querySelectorAll('[data-hapus-toggle]');
+    const closeBtns = document.querySelectorAll('[data-close-confirm]');
+
+    if (!modal || !form) return;
+
+    const openModal = (url, nama) => {
+        form.action = url || '';
+        if (namaEl) namaEl.textContent = nama || 'pengguna ini';
+
+        document.querySelectorAll('[data-dropdown-menu]').forEach((m) => m.classList.add('hidden'));
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeModal = () => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    hapusBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            openModal(btn.dataset.hapusUrl, btn.dataset.hapusNama);
+        });
+    });
+
+    closeBtns.forEach((b) => b.addEventListener('click', closeModal));
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
+    });
+}
+
+// ============================================================
+// USERS PAGE — Modal, Reset Password, Realtime Filter
+// ============================================================
+function initUsersPage() {
+    const modal         = document.getElementById('modalUser');
+    const modalTitle    = document.getElementById('modalUserTitle');
+    const form          = document.getElementById('formUser');
+    const formMethod    = document.getElementById('formMethodUser');
+    const btnTambah     = document.getElementById('btnTambahUser');
+    const closeButtons  = document.querySelectorAll('[data-close-modal-user]');
+
+    const inputNama     = document.getElementById('inputNamaUser');
+    const inputEmail    = document.getElementById('inputEmailUser');
+    const inputPassword = document.getElementById('inputPasswordUser');
+    const inputPasswordConfirm = document.getElementById('inputPasswordConfirm');
+    const inputRole     = document.getElementById('inputRoleUser');
+    const passwordHint  = document.getElementById('passwordHint');
+
+    const modalReset    = document.getElementById('modalResetPassword');
+    const formReset     = document.getElementById('formResetPassword');
+    const resetUserName = document.getElementById('resetUserName');
+    const closeReset    = document.querySelectorAll('[data-close-modal-reset]');
+
+    if (!modal || !form) return;
+
+    function attachEditListeners() {
+        document.querySelectorAll('[data-edit-toggle-user]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                try {
+                    const data = JSON.parse(btn.dataset.user);
+                    document.querySelectorAll('[data-dropdown-menu]').forEach((m) => m.classList.add('hidden'));
+                    openModal('edit', data);
+                } catch (err) {
+                    console.error('Gagal parse data user:', err);
+                }
+            });
+        });
+    }
+
+    function attachResetListeners() {
+        document.querySelectorAll('[data-reset-toggle]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-dropdown-menu]').forEach((m) => m.classList.add('hidden'));
+                openResetModal(btn.dataset.resetId, btn.dataset.resetNama);
+            });
+        });
+    }
+
+    function openModal(mode = 'create', data = null) {
+        if (mode === 'edit' && data) {
+            modalTitle.textContent = 'Edit Pengguna';
+            if (formMethod) formMethod.value = 'PUT';
+            form.action = `/pengguna/${data.id}`;
+
+            inputNama.value  = data.name || '';
+            inputEmail.value = data.email || '';
+            inputRole.value  = data.role || 'user';
+
+            inputPassword.value = '';
+            inputPasswordConfirm.value = '';
+            inputPassword.required = false;
+            inputPasswordConfirm.required = false;
+            if (passwordHint) passwordHint.textContent = '(kosongkan jika tidak diubah)';
+        } else {
+            modalTitle.textContent = 'Tambah Pengguna';
+            if (formMethod) formMethod.value = 'POST';
+            form.action = form.dataset.storeUrl || form.action;
+
+            form.reset();
+            inputPassword.required = true;
+            inputPasswordConfirm.required = true;
+            if (passwordHint) passwordHint.textContent = '';
+        }
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        form.reset();
+    }
+
+    function openResetModal(id, nama) {
+        if (formReset) formReset.action = `/pengguna/${id}/reset-password`;
+        if (resetUserName) resetUserName.textContent = nama || 'pengguna ini';
+        if (formReset) formReset.reset();
+
+        modalReset.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeResetModal() {
+        modalReset.style.display = 'none';
+        document.body.style.overflow = '';
+        if (formReset) formReset.reset();
+    }
+
+    btnTambah?.addEventListener('click', () => openModal('create'));
+    closeButtons.forEach((b) => b.addEventListener('click', closeModal));
+    closeReset.forEach((b) => b.addEventListener('click', closeResetModal));
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    modalReset?.addEventListener('click', (e) => {
+        if (e.target === modalReset) closeResetModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        if (modal.style.display === 'flex') closeModal();
+        if (modalReset?.style.display === 'flex') closeResetModal();
+    });
+
+    attachEditListeners();
+    attachResetListeners();
+
+    // ---------- Realtime Filter ----------
+    const filterForm  = document.getElementById('userFilterForm');
+    const container   = document.getElementById('userTableContainer');
+    const overlay     = document.getElementById('tableLoadingOverlay');
+    const searchInput = document.getElementById('searchUser');
+    const filterRole  = document.getElementById('filterRole');
+    const btnReset    = document.getElementById('btnResetFilterUser');
+
+    if (!filterForm || !container) return;
+
+    const ajaxUrl = filterForm.dataset.ajaxUrl || filterForm.action;
+    let currentController = null;
+    let debounceTimer = null;
+
+    const showLoading = () => {
+        if (overlay) overlay.style.display = 'flex';
+        container.classList.add('opacity-50');
+    };
+
+    const hideLoading = () => {
+        if (overlay) overlay.style.display = 'none';
+        container.classList.remove('opacity-50');
+    };
+
+    function updateResetButton() {
+        if (!btnReset) return;
+        const hasFilter =
+            (searchInput?.value || '').trim() !== '' ||
+            (filterRole?.value || '') !== '';
+        btnReset.classList.toggle('hidden', !hasFilter);
+    }
+
+    async function fetchUsers(params) {
+        if (currentController) currentController.abort();
+        currentController = new AbortController();
+
+        showLoading();
+
+        try {
+            const url = new URL(ajaxUrl, window.location.origin);
+            url.search = params.toString();
+
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                signal: currentController.signal,
+            });
+
+            if (!response.ok) throw new Error('Network error');
+
+            const data = await response.json();
+            container.innerHTML = data.html;
+
+            const newUrl = ajaxUrl + (params.toString() ? '?' + params.toString() : '');
+            window.history.pushState({}, '', newUrl);
+
+            if (typeof initDropdowns === 'function')     initDropdowns();
+            if (typeof initConfirmDelete === 'function') initConfirmDelete();
+
+            attachEditListeners();
+            attachResetListeners();
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error('Gagal fetch users:', err);
+            }
+        } finally {
+            hideLoading();
+        }
+    }
+
+    function applyFilter() {
+        const params = new URLSearchParams();
+        if (searchInput?.value) params.set('q', searchInput.value);
+        if (filterRole?.value)  params.set('role', filterRole.value);
+
+        const currentUrl = new URL(window.location.href);
+        const sort      = currentUrl.searchParams.get('sort');
+        const direction = currentUrl.searchParams.get('direction');
+        if (sort)      params.set('sort', sort);
+        if (direction) params.set('direction', direction);
+
+        fetchUsers(params);
+    }
+
+    function debouncedApply() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(applyFilter, 300);
+    }
+
+    function resetFilter() {
+        if (searchInput) searchInput.value = '';
+        if (filterRole)  filterRole.value  = '';
+        fetchUsers(new URLSearchParams());
+        updateResetButton();
+    }
+
+    searchInput?.addEventListener('input', () => {
+        updateResetButton();
+        debouncedApply();
+    });
+
+    filterRole?.addEventListener('change', () => {
+        updateResetButton();
+        applyFilter();
+    });
+
+    btnReset?.addEventListener('click', resetFilter);
+
+    filterForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        applyFilter();
+    });
+
+    window.addEventListener('popstate', () => {
+        const params = new URLSearchParams(window.location.search);
+        if (searchInput) searchInput.value = params.get('q') || '';
+        if (filterRole)  filterRole.value  = params.get('role') || '';
+        updateResetButton();
+        fetchUsers(params);
+    });
+
+    updateResetButton();
+}
+
+// ============================================================
+// LAPORAN PAGE — Filter + Export Preview
+// ============================================================
+function initLaporanPage() {
+    const filterForm = document.getElementById('laporanFilterForm');
+    if (!filterForm) return;
+
+    // Auto-submit saat tanggal / mobil / status berubah
+    const autoSubmitSelectors = ['dari', 'sampai', 'mobil_id', 'status'];
+
+    autoSubmitSelectors.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        el.addEventListener('change', () => {
+            filterForm.submit();
+        });
+    });
+
+    // Tombol "Lihat Formulir" — buka di tab baru
+    document.querySelectorAll('[data-laporan-show]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const url = btn.dataset.laporanShow;
+            if (url) window.open(url, '_blank');
+        });
+    });
+
+    // Tombol "Export PDF" / "Export Word" — konfirmasi dulu
+    document.querySelectorAll('[data-export-action]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            const type = btn.dataset.exportAction; // 'pdf' atau 'word'
+            const nama = btn.dataset.exportNama || 'data';
+            const url  = btn.dataset.exportUrl;
+
+            if (!url) return;
+
+            // Bisa langsung download tanpa konfirmasi
+            // Kalau mau konfirmasi, uncomment di bawah:
+            // if (!confirm(`Export ${type.toUpperCase()} untuk "${nama}"?`)) {
+            //     e.preventDefault();
+            //     return;
+            // }
+
+            window.location.href = url;
+        });
+    });
+}
+
+// ============================================================
 // AUTO INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Page-specific
     initLoginPage();
     initSidebar();
+    initDropdowns();
+    initConfirmDelete();
+
+    // Halaman pengguna (by presence)
+    if (document.getElementById('userFilterForm')) {
+        initUsersPage();
+    }
+
+    // Halaman laporan (by presence)
+    if (document.getElementById('laporanFilterForm')) {
+        initLaporanPage();
+    }
 });
