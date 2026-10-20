@@ -25,7 +25,7 @@ class PemakaianSeeder extends Seeder
             'tanggal'     => now()->toDateString(),
             'jam_keluar'  => '08:00',
             'jam_kembali' => '16:00',
-            'status'      => 'Digunakan',
+            'status'      => 'Disetujui',
             'keterangan'  => null,
         ]);
     }

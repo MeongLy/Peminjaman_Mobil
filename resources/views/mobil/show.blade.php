@@ -7,12 +7,12 @@
 
 <div class="mb-6">
     <a href="{{ route('mobil.index') }}"
-       class="inline-flex items-center gap-1.5 text-sm text-slate-500
+        class="inline-flex items-center gap-1.5 text-sm text-slate-500
               hover:text-brand-dark transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-             stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            stroke-width="2" stroke="currentColor" class="w-4 h-4">
             <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
         <span>Kembali ke Daftar Mobil</span>
     </a>
@@ -26,16 +26,21 @@
         <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden
                     animate-fade-in-up">
             <div class="aspect-video bg-gradient-to-br from-slate-100 to-slate-200
-                        flex items-center justify-center relative">
+                        flex items-center justify-center relative overflow-hidden">
 
+                {{-- SVG Placeholder (background) --}}
+                <div class="absolute inset-0 flex items-center justify-center text-slate-300 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="w-24 h-24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                    </svg>
+                </div>
+
+                {{-- Foto Asli --}}
                 @if (!empty($mobil->foto))
-                    <img src="{{ asset($mobil->foto) }}"
-                         alt="{{ $mobil->nama }}"
-                         class="w-full h-full object-cover"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                    <span class="hidden text-9xl opacity-30 absolute inset-0 items-center justify-center">🚗</span>
-                @else
-                    <span class="text-9xl opacity-30">🚗</span>
+                <img src="{{ asset('storage/' . $mobil->foto) }}"
+                    alt="{{ $mobil->nama }}"
+                    class="relative z-[1] w-full h-full object-cover"
+                    onerror="this.onerror=null; this.remove();">
                 @endif
             </div>
         </div>
@@ -86,20 +91,20 @@
                     <dt class="text-xs text-slate-500 uppercase font-semibold">Kondisi</dt>
                     <dd class="mt-0.5">
                         @if ($mobil->kondisi === 'Baik')
-                            <span class="inline-block bg-green-50 text-green-700
+                        <span class="inline-block bg-green-50 text-green-700
                                          px-2.5 py-1 rounded-full text-xs font-semibold">
-                                ● Baik
-                            </span>
+                            ● Baik
+                        </span>
                         @elseif ($mobil->kondisi === 'Perlu Cek')
-                            <span class="inline-block bg-yellow-50 text-yellow-700
+                        <span class="inline-block bg-yellow-50 text-yellow-700
                                          px-2.5 py-1 rounded-full text-xs font-semibold">
-                                ● Perlu Cek
-                            </span>
+                            ● Perlu Cek
+                        </span>
                         @else
-                            <span class="inline-block bg-red-50 text-red-700
+                        <span class="inline-block bg-red-50 text-red-700
                                          px-2.5 py-1 rounded-full text-xs font-semibold">
-                                ● Rusak
-                            </span>
+                            ● Rusak
+                        </span>
                         @endif
                     </dd>
                 </div>
@@ -118,63 +123,63 @@
             </p>
 
             @if ($mobil->status === 'Tersedia')
-                <div class="inline-flex items-center gap-2
+            <div class="inline-flex items-center gap-2
                             bg-green-50 text-green-700
                             px-3 py-1.5 rounded-full text-sm font-bold mb-4">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    Tersedia
-                </div>
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                Tersedia
+            </div>
 
-                <p class="text-xs text-slate-500 mb-4 leading-relaxed">
-                    Mobil ini siap digunakan untuk keperluan dinas. Silakan ajukan pemakaian.
-                </p>
+            <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                Mobil ini siap digunakan untuk keperluan dinas. Silakan ajukan pemakaian.
+            </p>
 
-                <button class="w-full bg-brand-dark hover:bg-brand-mid
-                               text-white font-semibold py-3 px-4 rounded-lg
-                               transition-colors duration-200
-                               disabled:opacity-60 disabled:cursor-not-allowed">
-                    Ajukan Pemakaian
-                </button>
+            <a href="{{ route('pemakaian.create', $mobil->id) }}"
+                class="block text-center w-full bg-brand-dark hover:bg-brand-mid
+          text-white font-semibold py-3 px-4 rounded-lg
+          transition-colors duration-200">
+                Ajukan Pemakaian
+            </a>
             @elseif ($mobil->status === 'Digunakan')
-                <div class="inline-flex items-center gap-2
+            <div class="inline-flex items-center gap-2
                             bg-orange-50 text-orange-700
                             px-3 py-1.5 rounded-full text-sm font-bold mb-4">
-                    <span class="w-2 h-2 rounded-full bg-orange-500"></span>
-                    Digunakan
-                </div>
+                <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                Digunakan
+            </div>
 
-                @if ($mobil->pemegang)
-                    <div class="px-3 py-2 rounded-lg bg-orange-50
+            @if ($mobil->pemegang)
+            <div class="px-3 py-2 rounded-lg bg-orange-50
                                 border border-orange-100 mb-4">
-                        <p class="text-[10px] uppercase font-bold text-orange-600">
-                            Digunakan Oleh
-                        </p>
-                        <p class="text-sm text-orange-700 font-semibold mt-0.5">
-                            {{ $mobil->pemegang }}
-                        </p>
-                    </div>
-                @endif
+                <p class="text-[10px] uppercase font-bold text-orange-600">
+                    Digunakan Oleh
+                </p>
+                <p class="text-sm text-orange-700 font-semibold mt-0.5">
+                    {{ $mobil->pemegang }}
+                </p>
+            </div>
+            @endif
 
-                <button disabled
-                        class="w-full bg-slate-200 text-slate-500
+            <button disabled
+                class="w-full bg-slate-200 text-slate-500
                                font-semibold py-3 px-4 rounded-lg
                                cursor-not-allowed">
-                    Tidak Tersedia
-                </button>
+                Tidak Tersedia
+            </button>
             @else
-                <div class="inline-flex items-center gap-2
+            <div class="inline-flex items-center gap-2
                             bg-red-50 text-red-700
                             px-3 py-1.5 rounded-full text-sm font-bold mb-4">
-                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                    Perbaikan
-                </div>
+                <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                Perbaikan
+            </div>
 
-                <button disabled
-                        class="w-full bg-slate-200 text-slate-500
+            <button disabled
+                class="w-full bg-slate-200 text-slate-500
                                font-semibold py-3 px-4 rounded-lg
                                cursor-not-allowed">
-                    Sedang Perbaikan
-                </button>
+                Sedang Perbaikan
+            </button>
             @endif
         </div>
 

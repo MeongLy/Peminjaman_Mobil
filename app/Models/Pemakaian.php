@@ -3,12 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Pemakaian extends Model
 {
-    protected $table = 'pemakaian';
-
     protected $fillable = [
         'mobil_id',
         'user_id',
@@ -22,16 +19,17 @@ class Pemakaian extends Model
         'keterangan',
     ];
 
+    // Tambahkan ini
     protected $casts = [
         'tanggal' => 'date',
     ];
 
-    public function mobil(): BelongsTo
+    public function mobil()
     {
         return $this->belongsTo(Mobil::class);
     }
 
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

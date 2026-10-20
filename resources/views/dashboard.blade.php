@@ -181,13 +181,12 @@
                                 <div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden
                                             flex items-center justify-center shrink-0">
                                     @if (!empty($m->foto))
-                                        <img src="{{ asset($m->foto) }}"
+                                        <img src="{{ asset('storage/' . $m->foto) }}"
                                              alt="{{ $m->nama }}"
                                              class="w-full h-full object-cover"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                                        <span class="hidden text-lg">🚗</span>
+                                             onerror="this.onerror=null; this.remove();">
                                     @else
-                                        <span class="text-lg">🚗</span>
+                                        <span class="text-slate-300 text-xs">No Img</span>
                                     @endif
                                 </div>
 
@@ -219,12 +218,19 @@
                                     Tersedia
                                 </span>
                             @elseif ($m->status === 'Digunakan')
-                                <span class="inline-flex items-center gap-1.5
-                                             bg-orange-50 text-orange-700
-                                             px-2.5 py-1 rounded-full text-xs font-semibold">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-                                    Digunakan
-                                </span>
+                                <div class="flex flex-col items-end gap-1">
+                                    <span class="inline-flex items-center gap-1.5
+                                                 bg-orange-50 text-orange-700
+                                                 px-2.5 py-1 rounded-full text-xs font-semibold">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                        Digunakan
+                                    </span>
+                                    @if ($m->pemegang)
+                                        <span class="text-[10px] text-slate-500">
+                                            oleh: {{ $m->pemegang }}
+                                        </span>
+                                    @endif
+                                </div>
                             @else
                                 <span class="inline-flex items-center gap-1.5
                                              bg-red-50 text-red-700
@@ -239,7 +245,6 @@
                     <tr>
                         <td colspan="4" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center gap-2 text-slate-400">
-                                <span class="text-4xl">🚗</span>
                                 <p class="text-sm">Belum ada data mobil</p>
                             </div>
                         </td>
@@ -260,13 +265,12 @@
                 <div class="w-14 h-14 rounded-lg bg-slate-100 overflow-hidden
                             flex items-center justify-center shrink-0">
                     @if (!empty($m->foto))
-                        <img src="{{ asset($m->foto) }}"
+                        <img src="{{ asset('storage/' . $m->foto) }}"
                              alt="{{ $m->nama }}"
                              class="w-full h-full object-cover"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                        <span class="hidden text-xl">🚗</span>
+                             onerror="this.onerror=null; this.remove();">
                     @else
-                        <span class="text-xl">🚗</span>
+                        <span class="text-slate-300 text-xs">No Img</span>
                     @endif
                 </div>
 
@@ -295,6 +299,11 @@
                     </div>
                     <p class="text-xs text-slate-500 mt-1">
                         {{ $m->tipe ?? '-' }}
+                        @if ($m->status === 'Digunakan' && $m->pemegang)
+                            <span class="block text-[10px] text-orange-500 mt-0.5">
+                                oleh: {{ $m->pemegang }}
+                            </span>
+                        @endif
                     </p>
                 </div>
 
@@ -302,7 +311,6 @@
         @empty
             <div class="p-12 text-center">
                 <div class="flex flex-col items-center gap-2 text-slate-400">
-                    <span class="text-4xl">🚗</span>
                     <p class="text-sm">Belum ada data mobil</p>
                 </div>
             </div>

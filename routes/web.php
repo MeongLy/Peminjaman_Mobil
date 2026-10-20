@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MobilController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\PemakaianController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 // ============================================================
 // ROOT → LOGIN
 // ============================================================
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', fn() => redirect()->route('login'));
 
 // ============================================================
 // AUTH ROUTES
@@ -36,11 +37,11 @@ Route::middleware('auth.static')->group(function () {
         ->name('dashboard');
 
     // ---------- Mobil ----------
-    Route::get('/mobil', [MobilController::class, 'index'])
-        ->name('mobil.index');
-
-    Route::get('/mobil/{mobil}', [MobilController::class, 'show'])
-        ->name('mobil.show');
+    Route::get('/mobil', [MobilController::class, 'index'])->name('mobil.index');
+    Route::post('/mobil', [MobilController::class, 'store'])->name('mobil.store');
+    Route::get('/mobil/{mobil}', [MobilController::class, 'show'])->name('mobil.show');
+    Route::put('/mobil/{mobil}', [MobilController::class, 'update'])->name('mobil.update');
+    Route::delete('/mobil/{mobil}', [MobilController::class, 'destroy'])->name('mobil.destroy');
 
     // ---------- Peminjaman ----------
     Route::get('/peminjaman', [PeminjamanController::class, 'index'])
@@ -81,4 +82,7 @@ Route::middleware('auth.static')->group(function () {
             ->name('word');
     });
 
-}); 
+        // ---------- Pemakaian ----------
+    Route::get('/mobil/{mobil}/ajukan', [PemakaianController::class, 'create'])->name('pemakaian.create');
+    Route::post('/mobil/{mobil}/ajukan', [PemakaianController::class, 'store'])->name('pemakaian.store');
+});

@@ -462,22 +462,153 @@ function initLaporanPage() {
 }
 
 // ============================================================
+// MOBIL PAGE — CRUD + Upload Foto
+// ============================================================
+function initMobilPage() {
+    const modal        = document.getElementById('modalMobil');
+    const modalTitle   = document.getElementById('modalMobilTitle');
+    const form         = document.getElementById('formMobil');
+    const formMethod   = document.getElementById('formMethodMobil');
+    const btnTambah    = document.getElementById('btnTambahMobil');
+    const closeButtons = document.querySelectorAll('[data-close-modal-mobil]');
+    const editButtons  = document.querySelectorAll('[data-edit-toggle-mobil]');
+
+    const inputNama        = document.getElementById('inputNamaMobil');
+    const inputPlat        = document.getElementById('inputPlatMobil');
+    const inputMerk        = document.getElementById('inputMerkMobil');
+    const inputTipe        = document.getElementById('inputTipeMobil');
+    const inputTahun       = document.getElementById('inputTahunMobil');
+    const inputKursi       = document.getElementById('inputKursiMobil');
+    const inputTransmisi   = document.getElementById('inputTransmisiMobil');
+    const inputBahanBakar  = document.getElementById('inputBahanBakarMobil');
+    const inputWarna       = document.getElementById('inputWarnaMobil');
+    const inputStatus      = document.getElementById('inputStatusMobil');
+    const inputKondisi     = document.getElementById('inputKondisiMobil');
+
+    // Upload foto
+    const inputFoto        = document.getElementById('inputFotoMobil');
+    const fotoPreview      = document.getElementById('fotoPreview');
+    const fotoPlaceholder  = document.getElementById('fotoPlaceholder');
+
+    if (!modal || !form) return;
+
+    function resetFotoPreview() {
+        if (fotoPreview) {
+            fotoPreview.src = '';
+            fotoPreview.classList.add('hidden');
+        }
+        if (fotoPlaceholder) fotoPlaceholder.classList.remove('hidden');
+        if (inputFoto) inputFoto.value = '';
+    }
+
+    function setFotoPreview(src) {
+        if (fotoPreview && fotoPlaceholder) {
+            fotoPreview.src = src;
+            fotoPreview.classList.remove('hidden');
+            fotoPlaceholder.classList.add('hidden');
+        }
+    }
+
+    inputFoto?.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validasi ukuran
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Ukuran file melebihi 2MB.');
+            this.value = '';
+            resetFotoPreview();
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (ev) => setFotoPreview(ev.target.result);
+        reader.readAsDataURL(file);
+    });
+
+    function openModal(mode = 'create', data = null) {
+        if (mode === 'edit' && data) {
+            modalTitle.textContent = 'Edit Mobil';
+            if (formMethod) formMethod.value = 'PUT';
+            form.action = `/mobil/${data.id}`;
+
+            inputNama.value       = data.nama || '';
+            inputPlat.value       = data.plat || '';
+            inputMerk.value       = data.merk || '';
+            inputTipe.value       = data.tipe || '';
+            inputTahun.value      = data.tahun || '';
+            inputKursi.value      = data.kursi || '';
+            inputTransmisi.value  = data.transmisi || 'Manual';
+            inputBahanBakar.value = data.bahan_bakar || '';
+            inputWarna.value      = data.warna || '';
+            inputStatus.value     = data.status || 'Tersedia';
+            inputKondisi.value    = data.kondisi || 'Baik';
+
+            if (data.foto) {
+                setFotoPreview(`/storage/${data.foto}`);
+            } else {
+                resetFotoPreview();
+            }
+        } else {
+            modalTitle.textContent = 'Tambah Mobil';
+            if (formMethod) formMethod.value = 'POST';
+            form.action = form.dataset.storeUrl || form.action;
+
+            form.reset();
+            inputTahun.value = new Date().getFullYear();
+            inputKursi.value = 7;
+            resetFotoPreview();
+        }
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        form.reset();
+        resetFotoPreview();
+    }
+
+    btnTambah?.addEventListener('click', () => openModal('create'));
+
+    editButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            try {
+                const data = JSON.parse(btn.dataset.mobil);
+                openModal('edit', data);
+            } catch (err) {
+                console.error('Gagal parse data mobil:', err);
+            }
+        });
+    });
+
+    closeButtons.forEach((b) => b.addEventListener('click', closeModal));
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
+    });
+}
+
+// ============================================================
 // AUTO INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Page-specific
+    // ... (init lainnya)
     initLoginPage();
     initSidebar();
     initDropdowns();
     initConfirmDelete();
 
-    // Halaman pengguna (by presence)
-    if (document.getElementById('userFilterForm')) {
-        initUsersPage();
-    }
+    // Halaman spesifik
+    if (document.getElementById('userFilterForm')) initUsersPage();
+    if (document.getElementById('laporanFilterForm')) initLaporanPage();
 
-    // Halaman laporan (by presence)
-    if (document.getElementById('laporanFilterForm')) {
-        initLaporanPage();
-    }
+    // 🆕 Cek halaman mobil
+    if (document.getElementById('modalMobil')) initMobilPage();
 });
