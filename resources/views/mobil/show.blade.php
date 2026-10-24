@@ -134,7 +134,7 @@
                 Mobil ini siap digunakan untuk keperluan dinas. Silakan ajukan pemakaian.
             </p>
 
-            <a href="{{ route('pemakaian.create', $mobil->id) }}"
+            <a href="{{ route('user.pemakaian.create', $mobil->id) }}"
                 class="block text-center w-full bg-brand-dark hover:bg-brand-mid
           text-white font-semibold py-3 px-4 rounded-lg
           transition-colors duration-200">

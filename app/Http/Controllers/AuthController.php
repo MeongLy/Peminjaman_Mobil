@@ -11,7 +11,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (session('user')) {
-            return redirect()->route('dashboard');
+            return redirect()->route($this->dashboardRoute(session('user.role')));
         }
 
         return view('auth.login');
@@ -47,7 +47,7 @@ class AuthController extends Controller
         ]);
 
         return redirect()
-            ->route('dashboard')
+            ->route($this->dashboardRoute($user->role))
             ->with('success', 'Selamat datang, ' . $user->name . '!');
     }
 
@@ -59,5 +59,13 @@ class AuthController extends Controller
 
         return redirect()->route('login')
             ->with('success', 'Anda berhasil logout.');
+    }
+
+    /**
+     * Tentukan route dashboard berdasarkan role.
+     */
+    private function dashboardRoute(?string $role): string
+    {
+        return $role === 'admin' ? 'dashboard' : 'user.dashboard';
     }
 }

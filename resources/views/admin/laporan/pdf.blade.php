@@ -1,6 +1,7 @@
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
-      xmlns:w="urn:schemas-microsoft-com:office:word"
-      xmlns="http://www.w3.org/TR/REC-html40">
+    xmlns:w="urn:schemas-microsoft-com:office:word"
+    xmlns="http://www.w3.org/TR/REC-html40">
+
 <head>
     <meta charset="UTF-8">
     <title>Formulir Pemakaian Kendaraan Dinas</title>
@@ -17,71 +18,118 @@
             size: A4 portrait;
             margin: 1.5cm 2cm;
         }
-        body {
-            font-family: 'Times New Roman', Arial, serif;
-            font-size: 12pt;
+
+        /* ✅ Paksa font Arial di SEMUA elemen (override Word default) */
+        body,
+        body * {
+            font-family: Arial, Helvetica, sans-serif !important;
             color: #000;
+        }
+
+        body {
+            font-size: 12pt;
         }
 
         .header {
             width: 100%;
-            border-bottom: 3px double #000;
+            border-bottom: 2px solid #000;
             padding-bottom: 8px;
             margin-bottom: 20px;
         }
+
         .header-table {
             width: 100%;
             border-collapse: collapse;
         }
+
         .header-table td {
             vertical-align: middle;
             padding: 0;
         }
+
         .logo-cell {
             width: 80px;
             text-align: center;
         }
+
         .logo-cell img {
-            width: 70px;
-            height: 70px;
+            width: 135px;
+            height: 135px;
         }
-        .logo-cell .placeholder {
-            font-size: 40pt;
-            line-height: 70px;
-        }
+
         .instansi-cell {
             text-align: center;
             line-height: 1.3;
         }
-        .instansi-cell .line-1 { font-size: 13pt; font-weight: bold; }
+
+        .instansi-cell .line-1 {
+            font-size: 9pt;
+            font-weight: normal;
+        }
+
         .instansi-cell .line-2,
-        .instansi-cell .line-3 { font-size: 12pt; font-weight: bold; }
-        .instansi-cell .line-4 { font-size: 13pt; font-weight: bold; margin-top: 3pt; }
+        .instansi-cell .line-3 {
+            font-size: 9pt;
+            font-weight: normal;
+        }
+
+        .instansi-cell .line-4 {
+            font-size: 10pt;
+            font-weight: bold;
+        }
+
         .instansi-cell .line-5,
-        .instansi-cell .line-6 { font-size: 9pt; }
+        .instansi-cell .line-6 {
+            font-size: 8pt;
+        }
 
         .judul {
             text-align: center;
-            font-size: 14pt;
+            font-size: 12pt;
             font-weight: bold;
-            text-decoration: underline;
             margin-bottom: 20pt;
         }
 
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12pt;
+            font-size: 11pt;
         }
-        .data-table td {
-            padding: 3pt 0;
-            vertical-align: top;
-        }
-        .data-table td.label { width: 200pt; }
-        .data-table td.sep   { width: 15pt; }
-        .data-table td.value { font-weight: bold; }
 
-        .kondisi-list { font-size: 11pt; }
+        /* ✅ Semua cell: font-weight normal (bukan bold) */
+        .data-table td {
+            padding: 5pt 0;
+            vertical-align: bottom;
+            font-weight: normal;
+        }
+
+        .data-table td.label {
+            width: 170pt;
+            font-weight: normal;
+        }
+
+        .data-table td.sep {
+            width: 10pt;
+            font-weight: normal;
+        }
+
+        /* ✅ Dotted lebih halus: 1pt (bukan 1.5pt) */
+        .data-table td.value {
+            border-bottom: 1pt dotted #333;
+            padding: 10pt 0;
+            padding-bottom: 3pt;
+            font-weight: normal;
+        }
+
+        .data-table td.value.no-dots {
+            border-bottom: none;
+        }
+
+        .kondisi-list {
+            font-size: 11pt;
+            font-weight: normal;
+        }
+
         .kondisi-list .dot {
             display: inline-block;
             width: 9pt;
@@ -91,30 +139,59 @@
             vertical-align: middle;
             margin-right: 3pt;
         }
+
         .kondisi-list .dot.checked {
             background-color: #000;
         }
 
-        .ttd-wrapper { margin-top: 40pt; }
-        .ttd-table { width: 100%; border-collapse: collapse; }
+        /* ---------- Tanda Tangan ---------- */
+        .ttd-wrapper {
+            margin-top: 40pt;
+        }
+
+        .ttd-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
         .ttd-table td {
             width: 50%;
             text-align: center;
             vertical-align: top;
             padding: 0;
+            font-weight: normal;
         }
-        .ttd-space { height: 60pt; }
+
+        .ttd-space {
+            height: 60pt;
+        }
+
+        .ttd-space-left {
+            height: 90pt;
+        }
+
         .ttd-name {
-            font-weight: bold;
-            text-decoration: underline;
+            margin: 0;
+            font-size: 12pt;
+            font-weight: normal;
+        }
+
+        .ttd-dots {
+            letter-spacing: 2pt;
+            font-size: 11pt;
+            color: #333;
+            margin-top: 2pt;
         }
 
         .ttd-kepala {
             margin-top: 40pt;
+            font-size: 11pt;
+            font-weight: normal;
             text-align: center;
         }
     </style>
 </head>
+
 <body>
 
     {{-- HEADER --}}
@@ -122,10 +199,11 @@
         <table class="header-table">
             <tr>
                 <td class="logo-cell">
-                    @if (file_exists(public_path('logo.png')))
-                        <img src="{{ asset('logo.png') }}" alt="Logo">
-                    @else
-                        <div class="placeholder">⚖️</div>
+                    @php
+                    $logoPath = public_path('logo.png');
+                    @endphp
+                    @if (file_exists($logoPath))
+                    <img src="{{ $logoPath }}" alt="Logo">
                     @endif
                 </td>
                 <td class="instansi-cell">
@@ -176,14 +254,14 @@
             <td class="value">{{ $pemakaian->tujuan }}</td>
         </tr>
         <tr>
-            <td class="label">Penanggung Jawab</td>
+            <td class="label">Kaur Umum</td>
             <td class="sep">:</td>
             <td class="value">{{ $pemakaian->pengguna }}</td>
         </tr>
         <tr>
             <td class="label">Kondisi Kendaraan Berangkat</td>
             <td class="sep">:</td>
-            <td class="value">
+            <td class="value no-dots">
                 <span class="kondisi-list">
                     <span><span class="dot checked"></span> baik</span> /
                     <span><span class="dot"></span> rusak</span> /
@@ -195,7 +273,7 @@
         <tr>
             <td class="label">Kondisi Kendaraan Kembali</td>
             <td class="sep">:</td>
-            <td class="value">
+            <td class="value no-dots">
                 <span class="kondisi-list">
                     <span><span class="dot"></span> baik</span> /
                     <span><span class="dot"></span> rusak</span> /
@@ -212,8 +290,8 @@
             <tr>
                 <td>
                     <p>Atasan Langsung,</p>
-                    <div class="ttd-space"></div>
-                    <p class="ttd-name">....................................................</p>
+                    <div class="ttd-space ttd-space-left"></div>
+                    <p class="ttd-name">Yulianto</p>
                 </td>
                 <td>
                     <p>Palangka Raya, {{ $pemakaian->tanggal?->translatedFormat('d F Y') }}</p>
@@ -227,9 +305,10 @@
         <div class="ttd-kepala">
             <p>Kepala,</p>
             <div class="ttd-space"></div>
-            <p class="ttd-name">....................................................</p>
+            <p class="ttd-name">Hani Anggraeni</p>
         </div>
     </div>
 
 </body>
+
 </html>

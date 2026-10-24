@@ -76,6 +76,18 @@ class MobilController extends Controller
             ->with('success', 'Mobil "' . $mobil->nama . '" berhasil diperbarui.');
     }
 
+    /**
+     * Katalog mobil untuk user (hanya bisa lihat).
+     */
+    public function katalog()
+    {
+        $mobil = Mobil::where('status', 'Tersedia')
+            ->orderBy('nama')
+            ->get();
+
+        return view('mobil.katalog', compact('mobil'));
+    }
+
     public function destroy(Mobil $mobil)
     {
         if ($mobil->foto) {

@@ -1,35 +1,30 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>@yield('title', 'Peminjaman Mobil Dinas')</title>
-
-  {{-- Favicon --}}
-  <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
-  <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
-  <meta name="theme-color" content="#0d3151">
-
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>@yield('title', 'Peminjaman Mobil Dinas')</title>
+    @include('partials.head')
 </head>
 
 <body class="bg-slate-100 min-h-screen">
+
+  @php
+  $isAdmin = session('user.role') === 'admin';
+  $dashboardRoute = $isAdmin ? 'dashboard' : 'user.dashboard';
+  @endphp
 
   {{-- ============================================================
          SIDEBAR
          ============================================================ --}}
   <aside id="sidebar"
     class="fixed top-0 left-0 z-40 w-64 h-screen bg-brand-dark
-              flex flex-col transition-transform duration-300 ease-out
-              -translate-x-full lg:translate-x-0">
+                  flex flex-col transition-transform duration-300 ease-out
+                  -translate-x-full lg:translate-x-0">
 
     {{-- Brand --}}
     <div class="flex items-center gap-3 px-6 py-5 border-b border-white/10">
       <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center
                         overflow-hidden shrink-0">
-        <img src="{{ asset('logo.png') }}"
+        <img src="{{ asset('logo.jpg') }}"
           alt="Logo"
           class="w-full h-full object-contain"
           onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'font-size:1.5rem\'>🚗</span>'">
@@ -43,9 +38,13 @@
     {{-- Menu --}}
     <nav class="flex-1 overflow-y-auto py-3">
 
+      @if ($isAdmin)
+
+      {{-- ============ MENU ADMIN ============ --}}
+
       {{-- Utama --}}
       <p class="px-6 pt-2 pb-1 text-[10px] font-bold text-blue-200/40
-                       uppercase tracking-widest">
+                           uppercase tracking-widest">
         Utama
       </p>
 
@@ -61,7 +60,7 @@
 
       {{-- Master Data --}}
       <p class="px-6 pt-4 pb-1 text-[10px] font-bold text-blue-200/40
-                       uppercase tracking-widest">
+                           uppercase tracking-widest">
         Master Data
       </p>
 
@@ -97,7 +96,7 @@
 
       {{-- Transaksi --}}
       <p class="px-6 pt-4 pb-1 text-[10px] font-bold text-blue-200/40
-                       uppercase tracking-widest">
+                           uppercase tracking-widest">
         Transaksi
       </p>
 
@@ -110,6 +109,61 @@
         </svg>
         <span>Peminjaman</span>
       </a>
+
+      @else
+
+      {{-- ============ MENU USER ============ --}}
+
+      {{-- Utama --}}
+      <p class="px-6 pt-2 pb-1 text-[10px] font-bold text-blue-200/40
+                           uppercase tracking-widest">
+        Utama
+      </p>
+
+      <a href="{{ route('user.dashboard') }}"
+        class="nav-item {{ request()->routeIs('user.dashboard') ? 'active' : '' }}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+          stroke-width="1.5" stroke="currentColor" class="w-5 h-5 shrink-0">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
+        </svg>
+        <span>Dashboard Saya</span>
+      </a>
+
+      {{-- Mobil Dinas --}}
+      <p class="px-6 pt-4 pb-1 text-[10px] font-bold text-blue-200/40
+                           uppercase tracking-widest">
+        Mobil Dinas
+      </p>
+
+      <a href="{{ route('user.katalog') }}"
+        class="nav-item {{ request()->routeIs('user.katalog') ? 'active' : '' }}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+          stroke-width="1.5" stroke="currentColor" class="w-5 h-5 shrink-0">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+        </svg>
+        <span>Katalog Mobil</span>
+      </a>
+
+      {{-- Riwayat --}}
+      <p class="px-6 pt-4 pb-1 text-[10px] font-bold text-blue-200/40
+                           uppercase tracking-widest">
+        Riwayat
+      </p>
+
+      <a href="{{ route('user.histori') }}"
+        class="nav-item {{ request()->routeIs('user.histori*') ? 'active' : '' }}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+          stroke-width="1.5" stroke="currentColor" class="w-5 h-5 shrink-0">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Riwayat Saya</span>
+      </a>
+
+      @endif
+
     </nav>
 
     {{-- User Box --}}
@@ -124,7 +178,7 @@
             {{ session('user.name') ?? 'Guest' }}
           </p>
           <span class="inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full
-                                 bg-brand-blue text-white">
+                                 {{ $isAdmin ? 'bg-brand-blue' : 'bg-cyan-500' }} text-white">
             {{ strtoupper(session('user.role') ?? 'USER') }}
           </span>
         </div>
@@ -151,7 +205,7 @@
   {{-- Overlay (mobile) --}}
   <div id="sidebarOverlay"
     class="fixed inset-0 bg-brand-dark/60 backdrop-blur-sm z-30
-            hidden lg:hidden opacity-0 transition-opacity duration-300 ease-out"></div>
+                hidden lg:hidden opacity-0 transition-opacity duration-300 ease-out"></div>
 
   {{-- ============================================================
          MAIN CONTENT
@@ -160,18 +214,18 @@
 
     {{-- Header --}}
     <header class="bg-white border-b border-slate-200 sticky top-0 z-20
-               backdrop-blur-md bg-white/90">
+                       backdrop-blur-md bg-white/90">
       <div class="flex items-center justify-between gap-3
-                px-4 md:px-6 py-3
-                max-w-full">
+                        px-4 md:px-6 py-3
+                        max-w-full">
 
         {{-- Hamburger (mobile) --}}
         <button id="menuToggle"
           class="lg:hidden inline-flex items-center justify-center
-                       w-9 h-9 sm:w-10 sm:h-10
-                       rounded-lg bg-brand-dark text-white
-                       hover:bg-brand-mid active:scale-95
-                       transition-all duration-150">
+                               w-9 h-9 sm:w-10 sm:h-10
+                               rounded-lg bg-brand-dark text-white
+                               hover:bg-brand-mid active:scale-95
+                               transition-all duration-150">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
             stroke-width="2" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -189,8 +243,8 @@
         {{-- User info --}}
         <div class="flex items-center gap-2 shrink-0">
           <div class="w-8 h-8 rounded-full bg-brand-mid text-white
-                        flex items-center justify-center
-                        text-xs font-bold shrink-0">
+                                flex items-center justify-center
+                                text-xs font-bold shrink-0">
             {{ strtoupper(substr(session('user.name') ?? 'U', 0, 1)) }}
           </div>
           <span class="hidden md:inline text-sm text-slate-600 font-medium truncate max-w-[140px]">
@@ -227,5 +281,7 @@
   </div>
 
 </body>
+
+
 
 </html>

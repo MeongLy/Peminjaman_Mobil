@@ -18,8 +18,30 @@ class DashboardController extends Controller
                 ->count(),
         ];
 
-        $mobilTerbaru = Mobil::latest()->take(5)->get();
+        $mobilTerbaru = Mobil::orderBy('nama')->limit(5)->get();
 
-        return view('dashboard', compact('stats', 'mobilTerbaru'));
+        // Pengajuan menunggu
+        $pendingPemakaian = Pemakaian::with(['mobil', 'user'])
+            ->where('status', 'Menunggu')
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        $totalPending = Pemakaian::where('status', 'Menunggu')->count();
+
+        // ✅ Sedang dipakai (Disetujui)
+        $sedangDipakai = Pemakaian::with(['mobil', 'user'])
+            ->where('status', 'Disetujui')
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        return view('dashboard', compact(
+            'stats',
+            'mobilTerbaru',
+            'pendingPemakaian',
+            'totalPending',
+            'sedangDipakai'
+        ));
     }
 }

@@ -29,6 +29,7 @@ class Pemakaian extends Model
         return $this->belongsTo(Mobil::class);
     }
 
+
     public function user()
     {
         return $this->belongsTo(User::class);
