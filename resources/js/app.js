@@ -449,13 +449,6 @@ function initLaporanPage() {
 
             if (!url) return;
 
-            // Bisa langsung download tanpa konfirmasi
-            // Kalau mau konfirmasi, uncomment di bawah:
-            // if (!confirm(`Export ${type.toUpperCase()} untuk "${nama}"?`)) {
-            //     e.preventDefault();
-            //     return;
-            // }
-
             window.location.href = url;
         });
     });
@@ -596,10 +589,35 @@ function initMobilPage() {
 }
 
 // ============================================================
+// COPY LINK — Global Helper (dipanggil dari onclick="copyLink(this)")
+// ============================================================
+window.copyLink = function (btn) {
+    const url = btn?.dataset?.copyUrl;
+    if (!url) {
+        console.warn('copyLink: data-copy-url kosong');
+        return;
+    }
+
+    const span = btn.querySelector('span');
+    const originalText = span?.textContent || 'Copy Link';
+
+    navigator.clipboard.writeText(url).then(() => {
+        if (span) {
+            span.textContent = '✓ Tersalin';
+            setTimeout(() => {
+                span.textContent = originalText;
+            }, 2000);
+        }
+    }).catch((err) => {
+        console.error('Gagal copy link:', err);
+        alert('Gagal menyalin link. Silakan copy manual:\n' + url);
+    });
+};
+
+// ============================================================
 // AUTO INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // ... (init lainnya)
     initLoginPage();
     initSidebar();
     initDropdowns();
@@ -608,7 +626,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Halaman spesifik
     if (document.getElementById('userFilterForm')) initUsersPage();
     if (document.getElementById('laporanFilterForm')) initLaporanPage();
-
-    // 🆕 Cek halaman mobil
     if (document.getElementById('modalMobil')) initMobilPage();
 });

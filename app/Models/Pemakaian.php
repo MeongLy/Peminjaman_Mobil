@@ -17,18 +17,20 @@ class Pemakaian extends Model
         'jam_kembali',
         'status',
         'keterangan',
+        'kalapas_token',
+        'kalapas_approved_at',
+        'kalapas_note',
     ];
 
-    // Tambahkan ini
     protected $casts = [
-        'tanggal' => 'date',
+        'tanggal'             => 'date',
+        'kalapas_approved_at' => 'datetime',
     ];
 
     public function mobil()
     {
         return $this->belongsTo(Mobil::class);
     }
-
 
     public function user()
     {

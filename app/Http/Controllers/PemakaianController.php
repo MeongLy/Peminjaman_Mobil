@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
 use App\Models\Mobil;
 use App\Models\Pemakaian;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PemakaianController extends Controller
 {
@@ -21,11 +22,26 @@ class PemakaianController extends Controller
     ];
 
     /**
+     * Nomor WA Kalapas — Ibu Hani Anggraeni.
+     * Format wa.me: 62 + nomor tanpa 0 di depan.
+     * 081649047375 → 6281649047375
+     */
+    private string $kalapasWaNumber = '6281649047375';
+
+    /**
+     * Nama Kalapas.
+     */
+    private string $kalapasName = 'Ibu Hani Anggraeni';
+
+    // ============================================================
+    // USER — Pengajuan
+    // ============================================================
+
+    /**
      * Form pengajuan pemakaian mobil.
      */
     public function create(Mobil $mobil)
     {
-        // Hanya mobil Tersedia yang bisa diajukan
         if ($mobil->status !== 'Tersedia') {
             return redirect()
                 ->route('user.katalog')
@@ -42,7 +58,6 @@ class PemakaianController extends Controller
      */
     public function store(Request $request, Mobil $mobil)
     {
-        // Cek stok lagi (antisipasi user isi form lama)
         if ($mobil->status !== 'Tersedia') {
             return redirect()
                 ->route('user.katalog')
@@ -58,14 +73,14 @@ class PemakaianController extends Controller
             'jam_kembali' => 'required|date_format:H:i|after:jam_keluar',
             'keterangan'  => 'nullable|string|max:500',
         ], [
-            'pengguna.required'    => 'Nama pemohon wajib diisi.',
-            'bidang.required'      => 'Bidang wajib dipilih.',
-            'tujuan.required'      => 'Tujuan/keperluan wajib diisi.',
-            'tanggal.required'     => 'Tanggal pakai wajib diisi.',
+            'pengguna.required'      => 'Nama pemohon wajib diisi.',
+            'bidang.required'        => 'Bidang wajib dipilih.',
+            'tujuan.required'        => 'Tujuan/keperluan wajib diisi.',
+            'tanggal.required'       => 'Tanggal pakai wajib diisi.',
             'tanggal.after_or_equal' => 'Tanggal tidak boleh di masa lalu.',
-            'jam_keluar.required'  => 'Jam keluar wajib diisi.',
-            'jam_kembali.required' => 'Jam kembali wajib diisi.',
-            'jam_kembali.after'    => 'Jam kembali harus setelah jam keluar.',
+            'jam_keluar.required'    => 'Jam keluar wajib diisi.',
+            'jam_kembali.required'   => 'Jam kembali wajib diisi.',
+            'jam_kembali.after'      => 'Jam kembali harus setelah jam keluar.',
         ]);
 
         Pemakaian::create([
@@ -81,7 +96,6 @@ class PemakaianController extends Controller
             'keterangan'  => $validated['keterangan'] ?? null,
         ]);
 
-        // Redirect ke riwayat user (bukan mobil.show yang admin-only)
         return redirect()
             ->route('user.histori')
             ->with('success', 'Pengajuan pemakaian mobil "' . $mobil->nama . '" berhasil dikirim. Menunggu persetujuan admin.');
@@ -102,13 +116,68 @@ class PemakaianController extends Controller
         return view('user.pemakaian.index', compact('pemakaian'));
     }
 
+    // ============================================================
+    // ADMIN — Approve / Reject / Kembalikan
+    // ============================================================
+
+    /**
+     * Setujui pengajuan tahap 1 (admin).
+     * → Status: Menunggu Kalapas + generate token
+     * → Redirect ke WA (pesan siap kirim ke Kalapas)
+     */
+    public function approve(Pemakaian $pemakaian)
+    {
+        if ($pemakaian->status !== 'Menunggu') {
+            return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya.');
+        }
+
+        $mobil = $pemakaian->mobil;
+
+        if (!$mobil || $mobil->status !== 'Tersedia') {
+            return back()->with('error', 'Mobil tidak tersedia untuk disetujui.');
+        }
+
+        // Generate token unik untuk Kalapas
+        $token = Str::random(48);
+
+        $pemakaian->update([
+            'status'        => 'Menunggu Kalapas',
+            'kalapas_token' => $token,
+        ]);
+
+        // Redirect ke WhatsApp dengan pesan siap kirim ke Ibu Hani
+        return redirect()->away($this->buildWaLink($pemakaian));
+    }
+
+    /**
+     * Tolak pengajuan (admin).
+     */
+    public function reject(Pemakaian $pemakaian)
+    {
+        if (!in_array($pemakaian->status, ['Menunggu', 'Menunggu Kalapas'])) {
+            return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya.');
+        }
+
+        $namaMobil = $pemakaian->mobil->nama ?? '-';
+        $namaUser  = $pemakaian->pengguna;
+
+        $pemakaian->update([
+            'status'        => 'Ditolak',
+            'kalapas_token' => null,   // invalidate token
+        ]);
+
+        return back()->with(
+            'success',
+            'Pengajuan "' . $namaMobil . '" oleh ' . $namaUser . ' ditolak.'
+        );
+    }
+
     /**
      * Kembalikan mobil — pengajuan selesai, mobil jadi Tersedia.
      * Admin only.
      */
     public function kembalikan(Pemakaian $pemakaian)
     {
-        // Hanya pengajuan "Disetujui" yang bisa dikembalikan
         if ($pemakaian->status !== 'Disetujui') {
             return back()->with('error', 'Hanya pengajuan yang sudah disetujui yang bisa dikembalikan.');
         }
@@ -116,12 +185,10 @@ class PemakaianController extends Controller
         $mobil = $pemakaian->mobil;
 
         DB::transaction(function () use ($pemakaian, $mobil) {
-            // Update status pemakaian → Selesai
             $pemakaian->update([
                 'status' => 'Selesai',
             ]);
 
-            // Update mobil → Tersedia, pemegang null
             if ($mobil) {
                 $mobil->update([
                     'status'   => 'Tersedia',
@@ -137,58 +204,45 @@ class PemakaianController extends Controller
     }
 
     /**
-     * Setujui pengajuan pemakaian.
+     * Kirim ulang link persetujuan ke Kalapas via WhatsApp.
      * Admin only.
      */
-    public function approve(Pemakaian $pemakaian)
+    public function kirimWaKalapas(Pemakaian $pemakaian)
     {
-        // Cek status masih Menunggu
-        if ($pemakaian->status !== 'Menunggu') {
-            return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya.');
+        if ($pemakaian->status !== 'Menunggu Kalapas' || !$pemakaian->kalapas_token) {
+            return back()->with('error', 'Pengajuan ini tidak dalam status menunggu Kalapas.');
         }
 
-        // Cek mobil masih Tersedia
-        $mobil = $pemakaian->mobil;
-        if (!$mobil || $mobil->status !== 'Tersedia') {
-            return back()->with('error', 'Mobil tidak tersedia untuk disetujui.');
-        }
-
-        DB::transaction(function () use ($pemakaian, $mobil) {
-            // Update status pengajuan
-            $pemakaian->update([
-                'status' => 'Disetujui',
-            ]);
-
-            // Update status mobil jadi Digunakan
-            $mobil->update([
-                'status'   => 'Digunakan',
-                'pemegang' => $pemakaian->pengguna,
-            ]);
-        });
-
-        return back()->with(
-            'success',
-            'Pengajuan "' . ($mobil->nama ?? '-') . '" oleh ' . $pemakaian->pengguna . ' disetujui.'
-        );
+        return redirect()->away($this->buildWaLink($pemakaian));
     }
 
+    // ============================================================
+    // HELPER — Generate Link WA
+    // ============================================================
+
     /**
-     * Tolak pengajuan pemakaian.
-     * Admin only.
+     * Generate link wa.me dengan pesan siap kirim ke Kalapas.
      */
-    public function reject(Pemakaian $pemakaian)
+    private function buildWaLink(Pemakaian $pemakaian): string
     {
-        if ($pemakaian->status !== 'Menunggu') {
-            return back()->with('error', 'Pengajuan ini sudah diproses sebelumnya.');
-        }
+        $mobil       = $pemakaian->mobil;
+        $waNumber    = $this->kalapasWaNumber;
+        $namaKalapas = $this->kalapasName;
 
-        $pemakaian->update([
-            'status' => 'Ditolak',
-        ]);
+        $linkPersetujuan = route('kalapas.approval', $pemakaian->kalapas_token);
 
-        return back()->with(
-            'success',
-            'Pengajuan "' . ($pemakaian->mobil->nama ?? '-') . '" oleh ' . $pemakaian->pengguna . ' ditolak.'
-        );
+        $pesan = "Assalamualaikum {$namaKalapas},\n\n"
+            . "Ada pengajuan pemakaian mobil dinas yang memerlukan persetujuan:\n\n"
+            . "• Pemohon: {$pemakaian->pengguna}\n"
+            . "• Bidang: {$pemakaian->bidang}\n"
+            . "• Mobil: " . ($mobil->nama ?? '-') . " (" . ($mobil->plat ?? '-') . ")\n"
+            . "• Tujuan: {$pemakaian->tujuan}\n"
+            . "• Tanggal: " . $pemakaian->tanggal?->translatedFormat('l, d F Y') . "\n"
+            . "• Waktu: {$pemakaian->jam_keluar} - {$pemakaian->jam_kembali}\n\n"
+            . "Silakan buka link berikut untuk melihat detail & menyetujui:\n"
+            . $linkPersetujuan . "\n\n"
+            . "Terima kasih.";
+
+        return 'https://wa.me/' . $waNumber . '?text=' . urlencode($pesan);
     }
 }

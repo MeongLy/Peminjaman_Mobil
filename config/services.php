@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'kalapas' => [
+        'wa_number' => env('KALAPAS_WA_NUMBER', '6281649047375'),
+        'name'      => env('KALAPAS_NAME', 'Ibu Hani Anggraeni'),
+    ],
+
 ];

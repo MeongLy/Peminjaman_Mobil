@@ -20,7 +20,7 @@ class DashboardController extends Controller
 
         $mobilTerbaru = Mobil::orderBy('nama')->limit(5)->get();
 
-        // Pengajuan menunggu
+        // Pengajuan menunggu (admin belum verifikasi)
         $pendingPemakaian = Pemakaian::with(['mobil', 'user'])
             ->where('status', 'Menunggu')
             ->latest()
@@ -29,9 +29,16 @@ class DashboardController extends Controller
 
         $totalPending = Pemakaian::where('status', 'Menunggu')->count();
 
-        // ✅ Sedang dipakai (Disetujui)
+        // ✅ Sedang dipakai (sudah disetujui, mobil Digunakan)
         $sedangDipakai = Pemakaian::with(['mobil', 'user'])
             ->where('status', 'Disetujui')
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        // ✅ Menunggu persetujuan Kalapas (Ibu Hani Anggraeni)
+        $menungguKalapas = Pemakaian::with(['mobil', 'user'])
+            ->where('status', 'Menunggu Kalapas')
             ->latest()
             ->limit(10)
             ->get();
@@ -41,7 +48,8 @@ class DashboardController extends Controller
             'mobilTerbaru',
             'pendingPemakaian',
             'totalPending',
-            'sedangDipakai'
+            'sedangDipakai',
+            'menungguKalapas'
         ));
     }
 }

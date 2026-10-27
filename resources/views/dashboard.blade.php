@@ -178,7 +178,7 @@
                     {{ $p->tujuan }}
                 </p>
                 <p class="text-[10px] text-slate-400 mt-1">
-                    {{ $p->tanggal?->format('d M Y') }}
+                    {{ $p->tanggal?->translatedFormat('d M Y') }}
                     · {{ $p->jam_keluar }}–{{ $p->jam_kembali }}
                 </p>
             </div>
@@ -188,7 +188,7 @@
                 {{-- Setujui --}}
                 <form method="POST"
                     action="{{ route('pemakaian.approve', $p->id) }}"
-                    data-confirm="Setujui pengajuan ini? Mobil akan ditandai Digunakan."
+                    data-confirm="Setujui pengajuan ini? Akan diteruskan ke Kalapas via WhatsApp."
                     data-confirm-title="Setujui Pengajuan"
                     data-confirm-ok="Ya, Setujui"
                     class="flex-1 sm:flex-none">
@@ -255,6 +255,101 @@
 @endif
 
 {{-- ============================================================
+     MENUNGGU KALAPAS — KIRIM WA / COPY LINK
+     ============================================================ --}}
+@if (isset($menungguKalapas) && $menungguKalapas->count() > 0)
+<div class="bg-white rounded-2xl border border-purple-200/80 overflow-hidden
+            animate-fade-in-up delay-5">
+
+    {{-- Header --}}
+    <div class="px-4 sm:px-6 py-4 flex items-center justify-between
+                gap-3 border-b border-purple-100 bg-purple-50/50">
+        <div class="min-w-0">
+            <h3 class="font-bold text-purple-900 text-sm sm:text-base
+                       flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
+                Menunggu Persetujuan Kalapas
+            </h3>
+            <p class="text-[10px] sm:text-xs text-purple-700/80 mt-0.5">
+                {{ $menungguKalapas->count() }} pengajuan menunggu Ibu Hani Anggraeni
+            </p>
+        </div>
+    </div>
+
+    {{-- List --}}
+    <div class="divide-y divide-purple-100/50">
+        @foreach ($menungguKalapas as $i => $p)
+        <div class="p-4 flex flex-col sm:flex-row sm:items-center
+                        gap-3 hover:bg-purple-50/30 transition-colors">
+
+            {{-- Info --}}
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <p class="font-semibold text-slate-800 text-sm truncate">
+                        {{ $p->mobil->nama ?? '-' }}
+                    </p>
+                    <span class="shrink-0 text-[10px] font-mono text-slate-600
+                                     bg-slate-100 px-1.5 py-0.5 rounded">
+                        {{ $p->mobil->plat ?? '-' }}
+                    </span>
+                </div>
+                <p class="text-xs text-slate-600">
+                    <span class="font-medium">{{ $p->pengguna }}</span>
+                    · {{ $p->bidang }}
+                </p>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                    {{ $p->tujuan }}
+                </p>
+                <p class="text-[10px] text-slate-400 mt-1">
+                    {{ $p->tanggal?->translatedFormat('d M Y') }}
+                    · {{ $p->jam_keluar }}–{{ $p->jam_kembali }}
+                </p>
+            </div>
+
+            {{-- Actions --}}
+            <div class="flex flex-wrap gap-2 shrink-0">
+
+                {{-- Kirim WA --}}
+                <a href="{{ route('pemakaian.kirim-wa-kalapas', $p->id) }}"
+                   target="_blank"
+                   class="inline-flex items-center justify-center gap-1.5
+                          bg-green-600 hover:bg-green-700 text-white
+                          px-3 py-2 rounded-lg text-xs font-semibold
+                          transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24" stroke-width="2"
+                         stroke="currentColor" class="w-3.5 h-3.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                    </svg>
+                    <span>Kirim WA</span>
+                </a>
+
+                {{-- Copy Link — pakai data-copy-url + helper JS --}}
+                <button type="button"
+                        data-copy-url="{{ route('kalapas.approval', $p->kalapas_token) }}"
+                        onclick="copyLink(this)"
+                        class="inline-flex items-center justify-center gap-1.5
+                               bg-slate-100 hover:bg-slate-200 text-slate-700
+                               px-3 py-2 rounded-lg text-xs font-semibold
+                               transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24" stroke-width="2"
+                         stroke="currentColor" class="w-3.5 h-3.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                    </svg>
+                    <span>Copy Link</span>
+                </button>
+
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
+{{-- ============================================================
      SEDANG DIPAKAI — TOMBOL KEMBALIKAN (SECTION TERPISAH)
      ============================================================ --}}
 @if (isset($sedangDipakai) && $sedangDipakai->count() > 0)
@@ -301,7 +396,7 @@
                     {{ $p->tujuan }}
                 </p>
                 <p class="text-[10px] text-slate-400 mt-1">
-                    {{ $p->tanggal?->format('d M Y') }}
+                    {{ $p->tanggal?->translatedFormat('d M Y') }}
                     · {{ $p->jam_keluar }}–{{ $p->jam_kembali }}
                 </p>
             </div>
