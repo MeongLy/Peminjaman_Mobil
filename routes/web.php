@@ -111,6 +111,10 @@ Route::middleware('auth.static')->group(function () {
         Route::get('/user/katalog', [MobilController::class, 'katalog'])
             ->name('user.katalog');
 
+        // Detail mobil untuk user
+        Route::get('/user/mobil/{mobil}', [MobilController::class, 'userDetail'])
+            ->name('user.mobil.detail');
+
         // Riwayat pemakaian user
         Route::get('/user/histori', [PemakaianController::class, 'histori'])
             ->name('user.histori');

@@ -21,6 +21,7 @@ class KalapasController extends Controller
             abort(404, 'Link persetujuan tidak valid atau sudah kadaluarsa.');
         }
 
+        // Kalau sudah diproses (bukan Menunggu Kalapas), tampilkan halaman "done"
         if ($pemakaian->status !== 'Menunggu Kalapas') {
             return view('kalapas.approval-done', compact('pemakaian'));
         }
@@ -64,7 +65,7 @@ class KalapasController extends Controller
                     'status'              => 'Disetujui',
                     'kalapas_approved_at' => now(),
                     'kalapas_note'        => $request->note,
-                    'kalapas_token'       => null,
+                    // ✅ TIDAK set kalapas_token = null
                 ]);
 
                 $mobil->update([
@@ -80,9 +81,9 @@ class KalapasController extends Controller
 
         // Tolak
         $pemakaian->update([
-            'status'        => 'Ditolak',
-            'kalapas_note'  => $request->note,
-            'kalapas_token' => null,
+            'status'       => 'Ditolak',
+            'kalapas_note' => $request->note,
+            // ✅ TIDAK set kalapas_token = null
         ]);
 
         return redirect()

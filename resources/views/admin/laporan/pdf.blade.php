@@ -289,9 +289,9 @@
         <table class="ttd-table">
             <tr>
                 <td>
-                    <p>Atasan Langsung,</p>
+                    <p>Kasubag TU,</p>
                     <div class="ttd-space ttd-space-left"></div>
-                    <p class="ttd-name">Yulianto</p>
+                    <p class="ttd-name">Cristin Sari</p>
                 </td>
                 <td>
                     <p>Palangka Raya, {{ $pemakaian->tanggal?->translatedFormat('d F Y') }}</p>

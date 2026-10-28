@@ -77,15 +77,24 @@ class MobilController extends Controller
     }
 
     /**
-     * Katalog mobil untuk user (hanya bisa lihat).
+     * Katalog mobil untuk user.
+     * Tampilkan SEMUA mobil — Tersedia di atas, Digunakan & Perbaikan di bawah.
      */
     public function katalog()
     {
-        $mobil = Mobil::where('status', 'Tersedia')
+        $mobil = Mobil::orderByRaw("FIELD(status, 'Tersedia', 'Digunakan', 'Perbaikan')")
             ->orderBy('nama')
             ->get();
 
         return view('mobil.katalog', compact('mobil'));
+    }
+
+    /**
+     * Detail mobil untuk user (sebelum ajukan).
+     */
+    public function userDetail(Mobil $mobil)
+    {
+        return view('mobil.user-detail', compact('mobil'));
     }
 
     public function destroy(Mobil $mobil)

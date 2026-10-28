@@ -15,7 +15,7 @@ class PemakaianController extends Controller
      */
     private array $bidangList = [
         'Bidang Pembinaan',
-        'Bidang Administrasi',
+        'Bidang Giatja',
         'Bidang Umum',
         'Bidang KPLP',
         'Sekretariat',

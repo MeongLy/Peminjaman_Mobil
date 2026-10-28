@@ -210,9 +210,9 @@
 
             {{-- Kolom Kiri --}}
             <div class="text-center">
-                <p class="text-sm text-slate-700 mb-25">Atasan Langsung,</p>
+                <p class="text-sm text-slate-700 mb-25">Kasubag TU,</p>
                 <p class="text-sm font-semibold text-slate-800">
-                    Yuliato
+                    Cristin Sari
                 </p>
                 <!-- <p class="text-sm text-slate-500 mt-1">
                     . . . . . . . . . . . . .

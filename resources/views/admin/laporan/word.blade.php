@@ -301,9 +301,9 @@
             <tr>
                 {{-- Atasan Langsung — semua tengah --}}
                 <td width="50%" align="center" valign="top" style="font-family: Arial, sans-serif;">
-                    <p class="ttd-label" style="font-family: Arial, sans-serif;">Atasan Langsung,</p>
+                    <p class="ttd-label" style="font-family: Arial, sans-serif;">Kasubag TU,</p>
                     <p class="ttd-space-left" style="font-family: Arial, sans-serif;">&nbsp;</p>
-                    <p class="ttd-name" style="font-family: Arial, sans-serif;">Yulianto</p>
+                    <p class="ttd-name" style="font-family: Arial, sans-serif;">Cristin Sari</p>
                 </td>
 
                 {{-- Peminjam — Palangka Raya tanggal kanan, sisanya tengah --}}
